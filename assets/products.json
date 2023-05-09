@@ -1,0 +1,59 @@
+[
+    {
+      "count": 4,
+      "description": "Dell Laptop Gaming G3",
+      "id": "7567ec4b-b10c-48c5-9345-fc73c48a80aa",
+      "price": 27.99,
+      "title": "Dell Laptop Gaming G3"
+    },
+    {
+      "count": 6,
+      "description": "Laptop HP 15.6",
+      "id": "7567ec4b-b10c-48c5-9345-fc73c48a80a0",
+      "price": 16.49,
+      "title": "Laptop HP 15.6"
+    },
+    {
+      "count": 7,
+      "description": "LG Monitor 34",
+      "id": "7567ec4b-b10c-48c5-9345-fc73c48a80a2",
+      "price": 13.99,
+      "title": "LG Monitor 34"
+    },
+    {
+      "count": 12,
+      "description": "HP Monitor 23.8",
+      "id": "7567ec4b-b10c-48c5-9345-fc73c48a80a1",
+      "price": 65.99,
+      "title": "HP Monitor 23.8"
+    },
+    {
+      "count": 7,
+      "description": "Seagate, Disco Duro Portátil de 2TB",
+      "id": "7567ec4b-b10c-48c5-9345-fc73c48a80a3",
+      "price": 19.99,
+      "title": "Seagate, Disco Duro Portátil de 2TB"
+    },
+    {
+      "count": 8,
+      "description": "Seagate, Disco Duro de 8TB",
+      "id": "7567ec4b-b10c-48c5-9345-fc73348a80a1",
+      "price": 48.99,
+      "title": "Seagate, Disco Duro de 8TB"
+    },
+    {
+      "count": 2,
+      "description": "JBL Quantum 600 Audífonos Gaming",
+      "id": "7567ec4b-b10c-48c5-9445-fc73c48a80a2",
+      "price": 24.99,
+      "title": "JBL Quantum 600 Audífonos Gaming"
+    },
+    {
+      "count": 3,
+      "description": "Samsung Galaxy Buds 2 Pro",
+      "id": "7567ec4b-b10c-45c5-9345-fc73c48a80a1",
+      "price": 44.99,
+      "title": "Samsung Galaxy Buds 2 Pro"
+    }
+  ]
+  

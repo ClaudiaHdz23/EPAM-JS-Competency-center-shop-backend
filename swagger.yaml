@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: Swagger Product-Service - OpenAPI 3.0
+  description: |-
+    This is the product-service project documentation
+    
+    Some useful links:
+    - [Product Service repository](https://github.com/ClaudiaHdz23/product-service)
+  contact:
+    email: claudia.hernandezgarcia01@gmail.com
+  version: 1.0.0
+servers:
+  - url: https://2ws8krsku3.execute-api.us-east-1.amazonaws.com/dev/
+tags:
+  - name: Products
+    description: Operations about Products
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Product'
+  /products/{productId}:
+    get:
+      tags:
+        - products
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Error getting product by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductIdError'
+      
+      
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 10
+        name:
+          type: string
+          example: Product name
+        price:
+          type: integer
+          format: int32
+          example: 7.99
+    ProductIdError:
+      type: object
+      properties:
+        message:
+          type: string
+          format: int64
+          example: Invalid productId

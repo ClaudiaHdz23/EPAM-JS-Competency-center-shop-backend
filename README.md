@@ -17,6 +17,7 @@ Follow the steps:
 
 ## Result Links
   - Server url: https://2ws8krsku3.execute-api.us-east-1.amazonaws.com/dev/
+  - Frontend integration: https://d452lnzqkf712.cloudfront.net/
     
     ### Apis
     - GetProductList: https://2ws8krsku3.execute-api.us-east-1.amazonaws.com/dev/products

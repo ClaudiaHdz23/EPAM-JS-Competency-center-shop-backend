@@ -8,6 +8,14 @@ provider:
   stage: dev
   region: us-east-1
 
+  environment:
+    PRODUCTS: products
+    STOCK: stock
+
+package:
+  exclude:
+    - ./node_modules
+
 functions:
   getProductsList:
     handler: functions/getProductsList.handler
@@ -21,3 +29,9 @@ functions:
       - http:
           path: /products/{productId}
           method: get
+  createProduct:
+    handler: functions/createProduct.handler
+    events:
+      - http:
+          path: /products
+          method: post

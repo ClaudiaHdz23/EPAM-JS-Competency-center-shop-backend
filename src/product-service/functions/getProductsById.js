@@ -3,8 +3,9 @@ const AWS = require('aws-sdk');
 const dynamoDB = new AWS.DynamoDB.DocumentClient();
 
 const headers = {
+  "Access-Control-Allow-Headers" : "Content-Type",
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Credentials": true
+  "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
 };
 
 module.exports.handler = async (event) => {
@@ -30,9 +31,9 @@ module.exports.handler = async (event) => {
 
       return {
         statusCode: 200,
+        headers,
         body: JSON.stringify({
           ...productResult.Item,
-          headers,
           count: stockResult.Item.count
         }),
       };

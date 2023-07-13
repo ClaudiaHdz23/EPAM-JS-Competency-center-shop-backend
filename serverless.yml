@@ -23,6 +23,14 @@ provider:
           Action: "S3:*"
           Resource: 
             - "arn:aws:s3:::chg-import-service-dev/*"
+        - Effect: "Allow"
+          Action: "dynamodb:*"
+          Resource: 
+            - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/products"
+            - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/stock"
+        - Effect: "Allow"
+          Action: "sqs:SendMessage"
+          Resource: ${self:custom.arnCatalogBatchQueue}
 
 package:
   exclude:
@@ -30,6 +38,8 @@ package:
 
 custom:
   s3BucketName: chg-import-service-dev
+  accountId: ""
+  arnCatalogBatchQueue: arn:aws:sqs:us-east-1:${self:custom.accountId}:catalog-batch-process-queue
 
 functions:
   getProductsList:
@@ -44,18 +54,27 @@ functions:
       - http:
           path: /products/{productId}
           method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
   createProduct:
     handler: src/product-service/functions/createProduct.handler
     events:
       - http:
           path: /products
           method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
   importProductsFile:
     handler: src/import-service/functions/importProductsFile.handler
     events:
-      - httpApi:
+      - http:
           path: /import
           method: get
+          cors: true
   importFileParser:
     handler: src/import-service/functions/importFileParser.handler
     events:
@@ -66,3 +85,47 @@ functions:
             - prefix: uploaded/
             - suffix: .csv
           existing: true
+
+resources:
+   Resources:
+    GatewayResponseDefault4XX:
+       Type: 'AWS::ApiGateway::GatewayResponse'
+       Properties:
+         ResponseParameters:
+           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+         ResponseType: DEFAULT_4XX
+         RestApiId:
+           Ref: 'ApiGatewayRestApi'
+    S3BucketAssets:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.s3BucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 3000
+    S3BucketAssetsAllowPublicReadPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref S3BucketAssets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: "arn:aws:s3:::${self:custom.s3BucketName}/*"
+              Principal: '*'

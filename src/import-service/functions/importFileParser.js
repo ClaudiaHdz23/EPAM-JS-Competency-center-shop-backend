@@ -2,6 +2,7 @@
 const AWS = require("aws-sdk");
 const csv = require("csv-parser");
 const s3 = new AWS.S3({ region: "us-east-1" });
+const sqs = new AWS.SQS({ region: 'us-east-1' });
 
 module.exports.handler = async (event) => {
   try {
@@ -39,11 +40,12 @@ const processCSV = (bucket, key) => {
     return new Promise((resolve, reject) => {
       s3Stream
       .pipe(csv())
-      .on("data", function (data) {
+      .on("data", (data) => {
         results.push(data);
       })
-      .on("end", () => {
+      .on("end", async () => {
         console.log(results);
+        await sendMessageToQueue(results);
         resolve(results);
       })
       .on("error", (error) => {
@@ -80,5 +82,19 @@ const deleteObject = async (bucket, key) => {
     console.log("Object deleted successfully.");
   } catch (error) {
     console.error("Error deleting object:", error);
+  }
+};
+
+const sendMessageToQueue = async (data) => {
+  try {
+    const params = {
+      MessageBody: JSON.stringify(data),
+      QueueUrl: process.env.URL_CATALOG_BATCH_QUEUE,
+    };
+
+    await sqs.sendMessage(params).promise();
+    console.log("Message sent to SQS queue");
+  } catch (error) {
+    console.error("Error sending message to SQS queue:", error);
   }
 };

@@ -20,9 +20,9 @@ Follow the steps:
   - Frontend integration: https://d452lnzqkf712.cloudfront.net/
     
     ### Apis
-    - GetProductList: https://v9j0h4dfhh.execute-api.us-east-1.amazonaws.com/dev/products
-    - GetProductsById: https://v9j0h4dfhh.execute-api.us-east-1.amazonaws.com/dev/products/{productId}
-    - CreateProduct: https://v9j0h4dfhh.execute-api.us-east-1.amazonaws.com/dev/products
-    - ImportProduct: https://5pha0drcx9.execute-api.us-east-1.amazonaws.com/import
+    - GetProductList: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products
+    - GetProductsById: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products/{productId}
+    - CreateProduct: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products
+    - ImportProduct: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/import
 
 You can find the documentation of the apis in the attached swagger in this repository.

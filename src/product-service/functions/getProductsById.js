@@ -33,8 +33,10 @@ module.exports.handler = async (event) => {
         statusCode: 200,
         headers,
         body: JSON.stringify({
-          ...productResult.Item,
-          count: stockResult.Item.count
+          product: {
+            ...productResult.Item,
+            count: stockResult.Item.count
+          }
         }),
       };
     } else {

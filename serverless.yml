@@ -11,6 +11,9 @@ provider:
     PRODUCTS: products
     STOCK: stock
     S3_BUCKET_NAME: ${self:custom.s3BucketName}
+    URL_CATALOG_BATCH_QUEUE: ${self:custom.urlCatalogBatchQueue}
+    ARN_SNS: 
+      Ref: createProductTopic
   
   iam:
     role:
@@ -31,15 +34,23 @@ provider:
         - Effect: "Allow"
           Action: "sqs:SendMessage"
           Resource: ${self:custom.arnCatalogBatchQueue}
+        - Effect: Allow
+          Action: "sns:*"
+          Resource: 
+            Ref: createProductTopic
 
 package:
   exclude:
     - ./node_modules
 
 custom:
-  s3BucketName: chg-import-service-dev
   accountId: ""
-  arnCatalogBatchQueue: arn:aws:sqs:us-east-1:${self:custom.accountId}:catalog-batch-process-queue
+  s3BucketName: chg-import-service-dev
+  SQSQueueName: catalog-batch-process-queue
+  SNSName: create-product-topic
+  arnCatalogBatchQueue: arn:aws:sqs:us-east-1:${self:custom.accountId}:${self:custom.SQSQueueName}
+  urlCatalogBatchQueue: https://sqs.us-east-1.amazonaws.com/${self:custom.accountId}/${self:custom.SQSQueueName}
+  arnSNS: arn:aws:sns:us-east-1:${self:custom.accountId}:${self:custom.SNSName}
 
 functions:
   getProductsList:
@@ -85,6 +96,12 @@ functions:
             - prefix: uploaded/
             - suffix: .csv
           existing: true
+  catalogBatchProcess:
+      handler: src/import-service/functions/catalogBatchProcess.handler
+      events:
+        - sqs:
+            arn: ${self:custom.arnCatalogBatchQueue}
+            batchSize: 5
 
 resources:
    Resources:
@@ -129,3 +146,14 @@ resources:
                 - 's3:GetObject'
               Resource: "arn:aws:s3:::${self:custom.s3BucketName}/*"
               Principal: '*'
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: createProductTopic
+        TopicName: create-product-topic
+    createProductSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        Endpoint: claudia.hernandezgarcia01@gmail.com
+        TopicArn: !Ref createProductTopic

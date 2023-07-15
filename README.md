@@ -23,6 +23,6 @@ Follow the steps:
     - GetProductList: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products
     - GetProductsById: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products/{productId}
     - CreateProduct: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/products
-    - ImportProduct: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/dev/import
+    - ImportProduct: https://rn1q5ldwle.execute-api.us-east-1.amazonaws.com/
 
 You can find the documentation of the apis in the attached swagger in this repository.

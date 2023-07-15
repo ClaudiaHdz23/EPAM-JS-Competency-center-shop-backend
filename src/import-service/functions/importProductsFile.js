@@ -2,6 +2,11 @@
 const AWS = require("aws-sdk");
 const s3 = new AWS.S3();
 
+const headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Credentials": true
+};
+
 module.exports.handler = async (event) => {
   try {
     const { name } = event.queryStringParameters;
@@ -17,6 +22,7 @@ module.exports.handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify(signedUrl),
     };
   } catch (error) {

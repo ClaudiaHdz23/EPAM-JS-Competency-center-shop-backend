@@ -11,6 +11,9 @@ provider:
     PRODUCTS: products
     STOCK: stock
     S3_BUCKET_NAME: ${self:custom.s3BucketName}
+    URL_CATALOG_BATCH_QUEUE: ${self:custom.urlCatalogBatchQueue}
+    ARN_SNS: 
+      Ref: createProductTopic
   
   iam:
     role:
@@ -23,13 +26,31 @@ provider:
           Action: "S3:*"
           Resource: 
             - "arn:aws:s3:::chg-import-service-dev/*"
+        - Effect: "Allow"
+          Action: "dynamodb:*"
+          Resource: 
+            - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/products"
+            - "arn:aws:dynamodb:us-east-1:${self:custom.accountId}:table/stock"
+        - Effect: "Allow"
+          Action: "sqs:SendMessage"
+          Resource: ${self:custom.arnCatalogBatchQueue}
+        - Effect: Allow
+          Action: "sns:*"
+          Resource: 
+            Ref: createProductTopic
 
 package:
   exclude:
     - ./node_modules
 
 custom:
+  accountId: ""
   s3BucketName: chg-import-service-dev
+  SQSQueueName: catalog-batch-process-queue
+  SNSName: create-product-topic
+  arnCatalogBatchQueue: arn:aws:sqs:us-east-1:${self:custom.accountId}:${self:custom.SQSQueueName}
+  urlCatalogBatchQueue: https://sqs.us-east-1.amazonaws.com/${self:custom.accountId}/${self:custom.SQSQueueName}
+  arnSNS: arn:aws:sns:us-east-1:${self:custom.accountId}:${self:custom.SNSName}
 
 functions:
   getProductsList:
@@ -44,18 +65,27 @@ functions:
       - http:
           path: /products/{productId}
           method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
   createProduct:
     handler: src/product-service/functions/createProduct.handler
     events:
       - http:
           path: /products
           method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
   importProductsFile:
     handler: src/import-service/functions/importProductsFile.handler
     events:
-      - httpApi:
+      - http:
           path: /import
           method: get
+          cors: true
   importFileParser:
     handler: src/import-service/functions/importFileParser.handler
     events:
@@ -66,3 +96,64 @@ functions:
             - prefix: uploaded/
             - suffix: .csv
           existing: true
+  catalogBatchProcess:
+      handler: src/import-service/functions/catalogBatchProcess.handler
+      events:
+        - sqs:
+            arn: ${self:custom.arnCatalogBatchQueue}
+            batchSize: 5
+
+resources:
+   Resources:
+    GatewayResponseDefault4XX:
+       Type: 'AWS::ApiGateway::GatewayResponse'
+       Properties:
+         ResponseParameters:
+           gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+         ResponseType: DEFAULT_4XX
+         RestApiId:
+           Ref: 'ApiGatewayRestApi'
+    S3BucketAssets:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.s3BucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicPolicy: false
+          RestrictPublicBuckets: false
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+              MaxAge: 3000
+    S3BucketAssetsAllowPublicReadPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref S3BucketAssets
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 's3:GetObject'
+              Resource: "arn:aws:s3:::${self:custom.s3BucketName}/*"
+              Principal: '*'
+    createProductTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: createProductTopic
+        TopicName: create-product-topic
+    createProductSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Protocol: email
+        Endpoint: claudia.hernandezgarcia01@gmail.com
+        TopicArn: !Ref createProductTopic

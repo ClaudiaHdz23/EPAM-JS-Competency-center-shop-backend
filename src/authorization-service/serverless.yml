@@ -1,0 +1,28 @@
+service: authorization-service
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action: lambda:InvokeFunction
+      Resource: "*"
+
+plugins:
+  - serverless-dotenv-plugin
+
+functions:
+  basicAuthorizer:
+    handler: functions/basicAuthorizer.handler
+
+outputs:
+  basicAuthorizerArn:
+    Value:
+      Fn::GetAtt:
+        - basicAuthorizer
+        - Arn
+    Export:
+      Name: basicAuthorizerArn

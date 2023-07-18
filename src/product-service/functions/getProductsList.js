@@ -39,6 +39,7 @@ module.exports.handler = async (event) => {
       body: JSON.stringify(data),
     };
   } catch (error) {
+    console.error(error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'An error occurred while obtaining data' }),

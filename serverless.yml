@@ -51,6 +51,8 @@ custom:
   arnCatalogBatchQueue: arn:aws:sqs:us-east-1:${self:custom.accountId}:${self:custom.SQSQueueName}
   urlCatalogBatchQueue: https://sqs.us-east-1.amazonaws.com/${self:custom.accountId}/${self:custom.SQSQueueName}
   arnSNS: arn:aws:sns:us-east-1:${self:custom.accountId}:${self:custom.SNSName}
+  basicAuthorizer:
+      arn: arn:aws:lambda:us-east-1:${self:custom.accountId}:function:authorization-service-dev-basicAuthorizer
 
 functions:
   getProductsList:
@@ -85,7 +87,10 @@ functions:
       - http:
           path: /import
           method: get
-          cors: true
+          authorizer:
+            name: basicAuthorizer
+            arn: ${self:custom.basicAuthorizer.arn}
+            type: TOKEN
   importFileParser:
     handler: src/import-service/functions/importFileParser.handler
     events:
